@@ -1,38 +1,51 @@
+/* Sensor test sketch
+  for more information see http://www.ladyada.net/make/logshield/lighttemp.html
+  */
+ 
+#define aref_voltage 3.3         // we tie 3.3V to ARef and measure it with a multimeter!
+ 
 //TMP36 Pin Variables
-int sensorPin = 0; //the analog pin the TMP36's Vout (sense) pin is connected to
+int tempPin = A1;        //the analog pin the TMP36's Vout (sense) pin is connected to
+int tempPinTwo = A2;  // second pin added - WD
                         //the resolution is 10 mV / degree centigrade with a
                         //500 mV offset to allow for negative temperatures
+float[] tempReading;        // the analog reading from the sensor
  
-/*
- * setup() - this function runs once when you turn your Arduino on
- * We initialize the serial connection with the computer
- */
-void setup()
-{
-  Serial.begin(9600);  //Start the serial connection with the computer
-                       //to view the result open the serial monitor 
+void setup(void) {
+  // We'll send debugging information via the Serial monitor
+  Serial.begin(9600);   
+ 
+  // If you want to set the aref to something other than 5v
+  analogReference(EXTERNAL);
 }
  
-void loop()                     // run over and over again
-{
- //getting the voltage reading from the temperature sensor
- int reading = analogRead(sensorPin);  
  
- // converting that reading to voltage, for 3.3v arduino use 3.3
- float voltage = reading * 5.0;
- voltage /= 1024.0; 
+void loop(void) {
  
- // print out the voltage
- Serial.print(voltage); Serial.println(" volts");
+  tempReading[0] = analogRead(tempPin);  
+  tempReading[1] = analogRead(tempPinTwo)
  
- // now print out the temperature
- float temperatureC = (voltage - 0.5) * 100 ;  //converting from 10 mv per degree wit 500 mV offset
-                                               //to degrees ((voltage - 500mV) times 100)
- Serial.print(temperatureC); Serial.println(" degrees C");
+  Serial.print("Temp reading = ");Serial.print(tempReading[0]);     // the raw analog reading
+  Serial.print(" - ");
+  Serial.print("Temp reading Two = ");Serial.print(tempReading[1]);     // the second raw analog reading  
  
- // now convert to Fahrenheit
- float temperatureF = (temperatureC * 9.0 / 5.0) + 32.0;
- Serial.print(temperatureF); Serial.println(" degrees F");
+  // converting that reading to voltage, which is based off the reference voltage
+  float[] voltage = tempReading * aref_voltage;
+  voltage /= 1024.0; 
  
- delay(1000);                                     //waiting a second
+  // print out the voltage
+  Serial.print(" - ");
+  Serial.print(voltage); Serial.println(" volts");
+ 
+  // now print out the temperature
+  float[] temperatureC = (voltage - 0.5) * 100 ;  //converting from 10 mv per degree with 500 mV offset
+                                               //to degrees ((volatge - 500mV) times 100)
+  Serial.print(temperatureC); Serial.println(" degrees C");
+ 
+  // now convert to Fahrenheight
+  float[] temperatureF = (temperatureC * 9.0 / 5.0) + 32.0;
+  Serial.print(temperatureF); Serial.println(" degrees F");
+ 
+  delay(1000);
+}
 }
